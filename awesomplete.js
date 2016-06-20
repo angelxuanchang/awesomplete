@@ -229,15 +229,20 @@ _.prototype = {
 			// Populate list with options that match
 			this.ul.innerHTML = "";
 
-			this.suggestions = this._list
+			var suggested = this._list
 				.map(function(item) {
 					return new Suggestion(me.data(item, value));
 				})
 				.filter(function(item) {
 					return me.filter(item, value);
-				})
-				.sort(this.sort)
-				.slice(0, this.maxItems);
+				});
+			if (this.sort) {
+				suggested = suggested.sort(this.sort);
+			}
+			if (this.maxItems > 0) {
+				suggested = suggested.slice(0, this.maxItems);
+			}
+			this.suggestions = suggested;
 
 			this.suggestions.forEach(function(text) {
 					me.ul.appendChild(me.item(text, value));
