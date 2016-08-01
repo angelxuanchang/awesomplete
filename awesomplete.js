@@ -220,38 +220,41 @@ _.prototype = {
 		}
 	},
 
-	evaluate: function() {
+	evaluate: function(options) {
+		options = options || { autoOpen: true };
 		var me = this;
 		var value = this.input.value;
 
+		this.index = -1;
+		// Populate list with options that match
+		this.ul.innerHTML = "";
+
+		var suggested = this._list
+			.map(function(item) {
+				return new Suggestion(me.data(item, value));
+			})
+			.filter(function(item) {
+				return me.filter(item, value);
+			});
+		if (this.sort) {
+			suggested = suggested.sort(this.sort);
+		}
+		if (this.maxItems > 0) {
+			suggested = suggested.slice(0, this.maxItems);
+		}
+		this.suggestions = suggested;
+
+		this.suggestions.forEach(function(text) {
+			me.ul.appendChild(me.item(text, value));
+		});
+
 		if (value.length >= this.minChars && this._list.length > 0) {
-			this.index = -1;
-			// Populate list with options that match
-			this.ul.innerHTML = "";
-
-			var suggested = this._list
-				.map(function(item) {
-					return new Suggestion(me.data(item, value));
-				})
-				.filter(function(item) {
-					return me.filter(item, value);
-				});
-			if (this.sort) {
-				suggested = suggested.sort(this.sort);
-			}
-			if (this.maxItems > 0) {
-				suggested = suggested.slice(0, this.maxItems);
-			}
-			this.suggestions = suggested;
-
-			this.suggestions.forEach(function(text) {
-					me.ul.appendChild(me.item(text, value));
-				});
-
 			if (this.ul.children.length === 0) {
 				this.close();
 			} else {
-				this.open();
+				if (options.autoOpen) {
+					this.open();
+				}
 			}
 		}
 		else {
